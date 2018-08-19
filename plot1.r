@@ -3,17 +3,18 @@
 #read data only from the used data
 download.file("https://d396qusza40orc.cloudfront.net/exdata%2Fdata%2Fhousehold_power_consumption.zip", "electric power consumption.zip")
 unzip("electric power consumption.zip")
-namescol<- read.table("household_power_consumption.txt",sep = ";",skip = 0, nrow = 1)
-data<- read.table("household_power_consumption.txt",sep = ";",
-                      skip = grep("1/2/2007", readLines("household_power_consumption.txt"))-1, 
-                      nrow = 60*24*2)
-#change date format
-data$V1 <- as.Date(data$V1, format = "%d/%m/%Y")
+data <- read.table("household_power_consumption.txt",sep = ";",na.strings = "?", header = TRUE)
+
+#change date format and subset data
+data$Date <- as.Date(data$Date, format = "%d/%m/%Y")
+data_used <- subset(data, subset = (Date >= "2007-02-01" & Date <= "2007-02-02"))
+data_used$datetime <- strptime(paste(data_used$Date, data_used$Time), "%Y-%m-%d %H:%M:%S")
+
 
 
 #create plot 1
-png(file = "plot1.png")
-hist(data$V3, 
+png(file = "plot1.png", height = 480, width = 480, units = 'px')
+hist(data_used$Global_active_power, 
      col = "red", 
      main = "Global Active Power", 
      xlab = "Global Active Power (kilowatts)")
